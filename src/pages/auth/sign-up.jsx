@@ -10,7 +10,8 @@ import {
 } from "@material-tailwind/react";
 import axios from "axios";
 import { useState } from "react";
-import { Link } from "react-router-dom"; import {
+import { Link, useNavigate } from "react-router-dom";
+import {
   HomeIcon,
   ChatBubbleLeftEllipsisIcon,
   Cog6ToothIcon,
@@ -19,6 +20,7 @@ import { Link } from "react-router-dom"; import {
 
 
 export function SignUp() {
+  const navigate = useNavigate();
 
   const [userName, setUserName] = useState();
   const [email, setEmail] = useState();
@@ -26,15 +28,6 @@ export function SignUp() {
   const [oName, setOName] = useState();
   const [GSTIN, setGSTIN] = useState();
   const [role, setRole] = useState();
-
-  const clearFields = () => {
-    setUserName("");
-    setEmail("");
-    setPassword("");
-    setOName("");
-    setGSTIN("");
-    setRole("");
-  };
 
   const register = async () => {
     try {
@@ -46,7 +39,14 @@ export function SignUp() {
         GSTIN: GSTIN,
         role: role
       });
-      clearFields();
+
+      if (data.data.status == true) {
+        navigate("/dashborad/home");
+        console.log(data);
+      } else {
+        console.log("error");
+      }
+
       console.log(data);
     } catch (error) {
       console.log(error);

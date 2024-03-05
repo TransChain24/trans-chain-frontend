@@ -5,12 +5,13 @@ import {
   Button,
   Typography,
 } from "@material-tailwind/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState } from "react";
 
 
 export function SignIn() {
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
@@ -19,7 +20,12 @@ export function SignIn() {
       console.log(email);
       console.log(password);
       const data = await axios.post("http://localhost:3000/common/auth/login", { emailID: email, password: password });
-      console.log(data);
+      if (data.data.status == true) {
+        navigate("/dashboard/home");
+        console.log(data);
+      } else {
+        console.log("error");
+      }
     } catch (error) {
       console.log(error);
     }
