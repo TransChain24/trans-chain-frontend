@@ -43,6 +43,8 @@ import {
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 // import { Data } from "./jsonData.js"; 
 import { fetchData } from "./api";
+import DisplayData from './DisplayData';
+
 export function Home() {
 
   // const [visible, setVisible] = useState(false);
@@ -54,10 +56,12 @@ export function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
   useEffect(() => {
+    const role = 'distributor'; // or retailer
     const fetchDataFromAPI = async () => {
       try {
-        const result = await fetchData();
+        const result = await fetchData(role);
         setData(result.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -347,20 +351,20 @@ export function Home() {
         <table className="w-full min-w-[640px] table-auto bg-white shadow-md rounded-lg overflow-hidden my-6">
           <thead>
             <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">Company Name</th>
-              <th className="py-3 px-6 text-left">Description</th>
-              <th className="py-3 px-6 text-left">Product Name</th>
-              <th className="py-3 px-6 text-left">Product ID</th>
+              <th className="py-3 px-6 text-left">Organization Name</th>
+              <th className="py-3 px-6 text-left">GSTIN</th>
+              <th className="py-3 px-6 text-left">Role</th>
+              {/* <th className="py-3 px-6 text-left">Product ID</th> */}
               <th className="py-3 px-6 text-left">Actions</th>
             </tr>
           </thead>
           <tbody className="text-gray-600 text-sm font-light">
             {data.map((item, index) => (
               <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
-                <td className="py-3 px-6 text-left">{item.companyName}</td>
-                <td className="py-3 px-6 text-left">{item.description}</td>
-                <td className="py-3 px-6 text-left">{item.productName}</td>
-                <td className="py-3 px-6 text-left">{item.productId}</td>
+                <td className="py-3 px-6 text-left">{item.organizationName}</td>
+                <td className="py-3 px-6 text-left">{item.GSTIN}</td>
+                <td className="py-3 px-6 text-left">{item.role}</td>
+                {/* <td className="py-3 px-6 text-left">{item.productId}</td> */}
                 <td className="py-3 px-6 text-left">
                   <Button onClick={() => handleOpenDialog(item)} className="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                     View Details

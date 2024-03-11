@@ -14,36 +14,36 @@
 //     // Add more items as needed
 //   ];
 
-// import axios from "axios";
-
-// const API_URL = "http://localhost:3000"; // Replace with your backend server's API URL
-
-// export const fetchData = async (role) => {
-//   try {
-//     const response = await axios.get(`${API_URL}/common/display?role=${role}`);
-//     return response.data; // Return the fetched data
-//   } catch (error) {
-//     console.error("Error fetching data:", error);
-//     throw error; // Rethrow the error to handle it in the component
-//   }
-// };
-
-
-
 import axios from "axios";
 
 const API_URL = "http://localhost:3000/common/display/"; // Replace with your backend server's API URL
 
-export const fetchData = async () => {
+export const fetchData = async (role) => {
   try {
-    const response = await axios.get(`${API_URL}display?role=retailer`); // Make a GET request to fetch data
-    console.log(response);
+    const response = await axios.get(`${API_URL}/display?role=${role}`);
     return response.data; // Return the fetched data
   } catch (error) {
     console.error("Error fetching data:", error);
     throw error; // Rethrow the error to handle it in the component
   }
 };
+
+
+
+// import axios from "axios";
+
+// const API_URL = "http://localhost:3000/common/display/"; // Replace with your backend server's API URL
+
+// export const fetchData = async () => {
+//   try {
+//     const response = await axios.get(`${API_URL}display?role=retailer`); // Make a GET request to fetch data
+//     console.log(response);
+//     return response.data; // Return the fetched data
+//   } catch (error) {
+//     console.error("Error fetching data:", error);
+//     throw error; // Rethrow the error to handle it in the component
+//   }
+// };
 // import React, { useState, useEffect } from 'react';
 // import { fetchData } from './api'; // Replace with the correct path to your API file
 
