@@ -6,10 +6,15 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import PropTypes from "prop-types";
+import { useState } from "react";
 
-export function StatisticsCard({ color, icon, title, value, footer }) {
+export function StatisticsCard({ color, icon, value, onClick}) {
+
+  const [visible, setVisible] = useState(false);
+  const [disUser, setDisUser] = useState(false);
+
   return (
-    <Card className="border border-blue-gray-100 shadow-sm">
+    <Card onClick={onClick} className="border border-blue-gray-100 shadow-sm p-3">
       <CardHeader
         variant="gradient"
         color={color}
@@ -19,19 +24,19 @@ export function StatisticsCard({ color, icon, title, value, footer }) {
       >
         {icon}
       </CardHeader>
-      <CardBody className="p-4 text-right">
-        <Typography variant="small" className="font-normal text-blue-gray-600">
-          {title}
-        </Typography>
+      <CardBody className=" text-right">
         <Typography variant="h4" color="blue-gray">
           {value}
         </Typography>
+        {/* <Typography variant="small" className="font-normal text-blue-gray-600">
+          {title}
+        </Typography> */}
       </CardBody>
-      {footer && (
-        <CardFooter className="border-t border-blue-gray-50 p-4">
+      {/* {footer && (
+        <CardFooter className=" border-blue-gray-50 p-2">
           {footer}
         </CardFooter>
-      )}
+      )} */}
     </Card>
   );
 }
