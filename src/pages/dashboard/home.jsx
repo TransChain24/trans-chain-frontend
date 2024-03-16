@@ -42,10 +42,15 @@ import {
 } from "@/data";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 // import { Data } from "./jsonData.js"; 
-import { fetchData } from "./api";
-import DisplayData from './DisplayData';
+// import { fetchData } from "./api";
+// import DisplayData from './DisplayData';
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 export function Home() {
+
+  // const location = useLocation();
+  // const userRole = location.state.data.role;
 
   // const [visible, setVisible] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -56,18 +61,29 @@ export function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const API_URL = "http://localhost:3000/common/display/"; // Replace with your backend server's API URL
+
+  const fetchData = async (userRole) => {
+    try {
+      const response = await axios.get(`${API_URL}/display?role=${userRole}`);
+      return response.data; // Return the fetched data
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      throw error; // Rethrow the error to handle it in the component
+    }
+  };
 
   useEffect(() => {
-    const role = 'distributor'; // or retailer
+    const role = 'retailer'; // or retailer
     const fetchDataFromAPI = async () => {
       try {
         const result = await fetchData(role);
+        console.log(result);
         setData(result.data);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError(error.message || 'Error fetching data');
-      } finally {
-        setLoading(false);
       }
     };
 
