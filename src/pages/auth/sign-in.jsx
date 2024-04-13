@@ -8,7 +8,9 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState } from "react";
+import { object } from "prop-types";
 
+// import { useHistory } from "react-router-dom";
 
 export function SignIn() {
   const navigate = useNavigate();
@@ -21,7 +23,9 @@ export function SignIn() {
       console.log(password);
       const data = await axios.post("http://localhost:3000/common/auth/login", { emailID: email, password: password });
       if (data.data.status == true) {
-        navigate("/dashboard/home");
+        // const history = useHistory();
+        // history.push('/home', { role: data.data.role });
+        navigate("/dashboard/home",{state:{role:data.data.role}});
         console.log(data);
       } else {
         console.log("error");
