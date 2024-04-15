@@ -14,7 +14,8 @@ export function StatisticsCard({ color, icon, value, onClick}) {
   const [disUser, setDisUser] = useState(false);
 
   return (
-    <Card onClick={onClick} className="border border-blue-gray-100 shadow-sm p-3">
+    
+    <Card onClick={onClick} className="border border-blue-gray-100 shadow-sm p-3 w-56 -my-6">
       <CardHeader
         variant="gradient"
         color={color}
@@ -24,8 +25,8 @@ export function StatisticsCard({ color, icon, value, onClick}) {
       >
         {icon}
       </CardHeader>
-      <CardBody className=" text-right">
-        <Typography variant="h4" color="blue-gray">
+      <CardBody className="text-left">
+        <Typography variant="h4" color="blue-gray" className="mx-14 -my-5">
           {value}
         </Typography>
         {/* <Typography variant="small" className="font-normal text-blue-gray-600">
