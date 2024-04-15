@@ -23,8 +23,6 @@ export function SignIn() {
       console.log(password);
       const data = await axios.post("http://localhost:3000/common/auth/login", { emailID: email, password: password });
       if (data.data.status == true) {
-        // const history = useHistory();
-        // history.push('/home', { role: data.data.role });
         navigate("/dashboard/home",{state:{role:data.data.role}});
         console.log(data);
       } else {
