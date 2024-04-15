@@ -14,10 +14,6 @@ import {
   Avatar,
   Tooltip,
   Progress,
-  // Dialog,
-  // DialogTitle,
-  // DialogContent,
-  // DialogActions,
 } from "@material-tailwind/react";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -25,20 +21,15 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import TextField from "@material-ui/core/TextField";
 
-import { makeStyles } from "@material-ui/core/styles";
 import { useLocation } from "react-router-dom";
 
-import {
-  EllipsisVerticalIcon,
-  ArrowUpIcon,
-} from "@heroicons/react/24/outline";
+
 import { StatisticsCard } from "@/widgets/cards";
 import { StatisticsChart } from "@/widgets/charts";
+
 import {
-  statisticsCardsData,
-  statisticsChartsData,
-  projectsTableData,
-  ordersOverviewData,
+  manufacturerCardsData,
+  distributorRetailerCardsData
 } from "@/data";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 // import { Data } from "./jsonData.js"; 
@@ -179,20 +170,36 @@ export function Home() {
 
     <div className="mt-10 ">
       <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4 ">
-        {statisticsCardsData.map(({ icon, value, ...rest }) => (
-          <StatisticsCard
-            key={value}
-            // val = {value}
-            onClick={() => toggleDisplay(value)}
-            {...rest}
-            value={value}
-            icon={React.createElement(icon, {
-              className: "w-6 h-6 text-white",
-            })
-            }
-          />
-        ))}
+      {role === "manufacturer" ? (
+    manufacturerCardsData.map(({ icon, value, ...rest }) => (
+      <StatisticsCard
+        key={value}
+        // val = {value}
+        onClick={() => toggleDisplay(value)}
+        {...rest}
+        value={value}
+        icon={React.createElement(icon, {
+          className: "w-6 h-6 text-white",
+        })}
+      />
+    ))
+  ) : (
+    distributorRetailerCardsData.map(({ icon, value, ...rest }) => (
+      <StatisticsCard
+        key={value}
+        // val = {value}
+        onClick={() => toggleDisplay(value)}
+        {...rest}
+        value={value}
+        icon={React.createElement(icon, {
+          className: "w-6 h-6 text-white",
+        })}
+      />
+    ))
+  )}
+        
       </div>
+      
       
       {/* {activeCard === "Add Items" && role === "manufacturer" && <div className=""> */}
       {activeCard === "Add Items" && <div className="">
