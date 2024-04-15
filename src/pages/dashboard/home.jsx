@@ -36,10 +36,13 @@ export function Home() {
 
   const [visible, setVisible] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openOrderDialog, setOpenOrderDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [activeCard, setActiveCard] = useState(null);
   const [data, setData] = useState([]);
   const [product, setProduct] = useState([]);
+  const [distributors, setDistributorList] = useState([]);
+  const [productsData, setDistributorProduct] = useState([]); // inventory products data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedOrganization, setExpandedOrganization] = useState(null);
@@ -47,12 +50,12 @@ export function Home() {
   const location = useLocation();
   const { role } = location.state;
 
-  const API_URL = "http://localhost:3000/common/display/"; // Replace with your backend server's API URL
+  const API_URL_DISPLAY = "http://localhost:3000/common/display/"; // Replace with your backend server's API URL
   const API_URL_PRODUCT = "http://localhost:3000/common/product/"; // Replace with your backend server's API URL
-
+  
   const fetchData = async (userRole) => {
     try {
-      const response = await axios.get(`${API_URL}/display?role=${userRole}`);
+      const response = await axios.get(`${API_URL_DISPLAY}/display?role=${userRole}`);
       return response.data; // Return the fetched data
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -67,6 +70,38 @@ export function Home() {
     } catch (error) {
       console.error("Error fetching product:", error);
       throw error; // Rethrow the error to handle it in the component
+    }
+  };
+
+  const getDisFromInventory = async () => {
+    try {
+      const response = await axios.get(`${API_URL_DISPLAY}/getUserDetailsFromInventory/distributor`);
+      return response.data; // Return the fetched data
+    } catch (error) {
+      console.error("Error fetching distributor list:", error);
+      throw error; // Rethrow the error to handle it in the component
+    }
+  };
+
+  const getDistributorProducts = async (ownerId) => {
+    try{
+      const response = await axios.get(`${API_URL_PRODUCT}/getOwnerProducts/${ownerId}`);
+      return response.data; // Return the fetched data
+    } catch (error) {
+      console.error("Error fetching distributor list:", error);
+      throw error; // Rethrow the error to handle it in the component
+    }
+  }
+
+  const distributorsProducts = async (ownerId) => {
+    try{
+      const result = await getDistributorProducts(ownerId);
+      console.log(result);
+      setDistributorProduct(result.products);
+      setLoading(false);
+    }catch(error){
+      console.error('Eror fetching products of distributors:', error);
+      setError(error.message || 'Error fetching products of distributor');
     }
   };
 
@@ -97,8 +132,21 @@ export function Home() {
       }
     };
 
+    const inventoryDistributors = async () => {
+      try{
+        const res = await getDisFromInventory();
+        console.log(res);
+        setDistributorList(res.userDetails);
+        setLoading(false);
+      } catch(error){
+        console.error('Error fetching distributors from inventory:', error);
+        setError(error.message || 'Error fetching distributor list');
+      }
+    };
+
     fetchDataFromAPI();
     fetchProductAPI();
+    inventoryDistributors();
   }, []);
 
   
@@ -122,25 +170,25 @@ export function Home() {
   //     // Handle error
   //   });
   
-  const productsData = [
-    {
-      ownerId: 1,
-      products: [
-        { productId: 1, productName: "Product 1", description: "Description for Product 1" },
-        { productId: 2, productName: "Product 2", description: "Description for Product 2" },
-        // Add more products for owner ID 1 if needed
-      ]
-    },
-    {
-      ownerId: 2,
-      products: [
-        { productId: 3, productName: "Product 3", description: "Description for Product 3" },
-        { productId: 4, productName: "Product 4", description: "Description for Product 4" },
-        // Add more products for owner ID 2 if needed
-      ]
-    },
-    // Add more owner IDs and associated products as needed
-  ];
+  // const productsData = [
+  //   {
+  //     ownerId: 1,
+  //     products: [
+  //       { productId: 1, productName: "Product 1", description: "Description for Product 1" },
+  //       { productId: 2, productName: "Product 2", description: "Description for Product 2" },
+  //       // Add more products for owner ID 1 if needed
+  //     ]
+  //   },
+  //   {
+  //     ownerId: 2,
+  //     products: [
+  //       { productId: 3, productName: "Product 3", description: "Description for Product 3" },
+  //       { productId: 4, productName: "Product 4", description: "Description for Product 4" },
+  //       // Add more products for owner ID 2 if needed
+  //     ]
+  //   },
+  //   // Add more owner IDs and associated products as needed
+  // ];
 
   
   const handleOpenDialog = (item) => {
@@ -149,8 +197,21 @@ export function Home() {
     setOpenDialog(true); // Open the dialog
   };
 
+  const handleOpenDialogForRetailer = (item,ownerId) => {
+    setSelectedItem(item); // Set the selected item
+    setExpandedOrganization(item); 
+    setOpenDialog(true); // Open the dialog
+    distributorsProducts(ownerId); // it will call the api for getting products of ownerID has in
+  };
+
+  const handleOrderDialog = (item) => {
+    setOpenOrderDialog(true);
+    setSelectedItem(item);
+  };
+
   const handleCloseDialog = () => {
     setOpenDialog(false); // Close the dialog
+    setOpenOrderDialog(false);
   };
 
   const toggleDisplay = (value) => {
@@ -256,7 +317,7 @@ export function Home() {
                 <td className="py-3 px-6 text-left">{item.productDescription}</td>
                 {/* <td className="py-3 px-6 text-left">{item.productId}</td> */}
                 <td className="py-3 px-6 text-left">
-                  <Button onClick={() => handleOpenDialog(item)} className="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                  <Button onClick={() => handleOrderDialog(item)} className="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                     View Details
                   </Button>
                 </td>
@@ -267,57 +328,37 @@ export function Home() {
       </div>
       )}
 
-{activeCard === "Display Users" && role === "retailer" && (
+{activeCard === "Display Users" && role === "retailer" && distributors && distributors.length > 0 && (
   <div>
     <Typography variant="h6">Items List:</Typography>
     <table className="w-full min-w-[640px] table-auto bg-white shadow-md rounded-lg overflow-hidden my-6">
+      {/* Table header */}
       <thead>
         <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
           <th className="py-3 px-6 text-left">Organization Name</th>
+          <th className="py-3 px-6 text-left">Owner Name</th>
           <th className="py-3 px-6 text-left">GSTIN</th>
           <th className="py-3 px-6 text-left">Role</th>
           <th className="py-3 px-6 text-left">Actions</th>
         </tr>
       </thead>
+      {/* Table body */}
       <tbody className="text-gray-600 text-sm font-light">
-        {data.map((item, index) => (
+        {distributors.map((item, index) => (
           <React.Fragment key={index}>
             <tr className="border-b border-gray-200 hover:bg-gray-100">
-              <td className="py-3 px-6 text-left" onClick={() => handleOrganizationClick(item.organizationName)}>
+              <td className="py-3 px-6 text-left">
                 {item.organizationName}
               </td>
+              <td className="py-3 px-6 text-left">{item.userName}</td>
               <td className="py-3 px-6 text-left">{item.GSTIN}</td>
               <td className="py-3 px-6 text-left">{item.role}</td>
               <td className="py-3 px-6 text-left">
-                <Button onClick={() => handleOpenDialog(item)} className="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                <Button onClick={() => handleOpenDialogForRetailer(item,item._id)} className="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                   View Details
                 </Button>
               </td>
             </tr>
-            {expandedOrganization === item.organizationName && (
-              <tr>
-                <td colSpan="4">
-                  <table className="w-full min-w-[640px] table-auto bg-white shadow-md rounded-lg overflow-hidden my-6">
-                    <thead>
-                      <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                        <th className="py-3 px-6 text-left">Product ID</th>
-                        <th className="py-3 px-6 text-left">Product Name</th>
-                        <th className="py-3 px-6 text-left">Product Description</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {item.products.map((product, index) => (
-                        <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
-                          <td className="py-3 px-6 text-left">{product.productId}</td>
-                          <td className="py-3 px-6 text-left">{product.productName}</td>
-                          <td className="py-3 px-6 text-left">{product.productDescription}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
-            )}
           </React.Fragment>
         ))}
       </tbody>
@@ -325,79 +366,73 @@ export function Home() {
   </div>
 )}
 
-{role === "retailer" &&
-<Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="lg">
-  <>
-    {expandedOrganization && (
-      <>
-        <DialogTitle>{expandedOrganization.organizationName}</DialogTitle>
-        <DialogContent className="w-150">
-          {productsData.map((owner) => {
-            // if (owner.ownerId === "1") {
-            
-            // if (product === expandedOrganization.ownerId) {
-            // if (owner.ownerId === expandedOrganization.ownerId) {
-            // if (owner.ownerId === expandedOrganization.ownerId) {
-              return "1" && owner.products.length > 0 ? (
-                <React.Fragment>
-                  <Typography variant="h6">Products List:</Typography>
-                  <table className="w-full min-w-[640px] table-auto bg-white shadow-md rounded-lg overflow-hidden my-6">
-                    {/* Table header */}
-                    <thead>
-                      {/* Table header row */}
-                      <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                        <th className="py-3 px-6 text-left">Product ID</th>
-                        <th className="py-3 px-6 text-left">Product Name</th>
-                        <th className="py-3 px-6 text-left">Description</th>
-                        <th className="py-3 px-6 text-left">Action</th>
+
+{role === "retailer" && (
+  <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="lg">
+    <>
+      {expandedOrganization && (
+        <>
+          <DialogTitle>{expandedOrganization.organizationName}</DialogTitle>
+          <DialogContent className="w-150">
+            {productsData && productsData.length > 0 ? (
+              <React.Fragment>
+                <Typography variant="h6">Products List:</Typography>
+                <table className="w-full min-w-[640px] table-auto bg-white shadow-md rounded-lg overflow-hidden my-6">
+                  {/* Table header */}
+                  <thead>
+                    {/* Table header row */}
+                    <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                      <th className="py-3 px-6 text-left">Product ID</th>
+                      <th className="py-3 px-6 text-left">Product Name</th>
+                      <th className="py-3 px-6 text-left">Description</th>
+                      <th className="py-3 px-6 text-left">Action</th>
+                      {/* Add any other columns you need */}
+                    </tr>
+                  </thead>
+                  {/* Table body */}
+                  <tbody className="text-gray-600 text-sm font-light">
+                    {/* Iterate over the products */}
+                    {productsData.map((product, index) => (
+                      // Table row for each product
+                      <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
+                        {/* Product ID */}
+                        <td className="py-3 px-6 text-left">{product.productID}</td>
+                        {/* Product Name */}
+                        <td className="py-3 px-6 text-left">{product.productName}</td>
+                        {/* Product Description */}
+                        <td className="py-3 px-6 text-left">{product.productDescription}</td>
                         {/* Add any other columns you need */}
+                        <td className="py-1.5 px-6 text-left">
+                          <Button onClick={() => handleOrderDialog(product)} color="primary" className=" bg-gray-900 hover:bg-gray-700 text-white font-bold rounded">
+                            Order
+                          </Button>
+                        </td>
                       </tr>
-                    </thead>
-                    {/* Table body */}
-                    <tbody className="text-gray-600 text-sm font-light">
-                      {/* Iterate over the products */}
-                      {owner.products.map((product, index) => (
-                        // Table row for each product
-                        <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
-                          {/* Product ID */}
-                          <td className="py-3 px-6 text-left">{product.productId}</td>
-                          {/* Product Name */}
-                          <td className="py-3 px-6 text-left">{product.productName}</td>
-                          {/* Product Description */}
-                          <td className="py-3 px-6 text-left">{product.description}</td>
-                          {/* Add any other columns you need */}
-                          <td className="py-1.5 px-6 text-left">{<Button color="primary" className=" bg-gray-900 hover:bg-gray-700 text-white font-bold rounded">
-          Order
-        </Button>
-}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </React.Fragment>
-              ) : (
-                <Typography>No products found for this organization.</Typography>
-              );
-            // }
-            return null;
-          })}
-        </DialogContent>
-        {/* Dialog actions */}
-        <DialogActions>
-          {/* Close button */}
-          <Button onClick={handleCloseDialog} color="primary" className="ml-auto mr-auto w-56 bg-gray-900 hover:bg-gray-700 text-white font-bold rounded">
-            Close
-          </Button>
-        </DialogActions>
-      </>
-    )}
-  </>
-</Dialog>
-}
+                    ))}
+                  </tbody>
+                </table>
+              </React.Fragment>
+            ) : (
+              <Typography>No products found for this organization.</Typography>
+            )}
+          </DialogContent>
+          {/* Dialog actions */}
+          <DialogActions>
+            {/* Close button */}
+            <Button onClick={handleCloseDialog} color="primary" className="ml-auto mr-auto w-56 bg-gray-900 hover:bg-gray-700 text-white font-bold rounded">
+              Close
+            </Button>
+          </DialogActions>
+        </>
+      )}
+    </>
+  </Dialog>
+)}
 
-{ role === "distributor" &&
 
-<Dialog open={openDialog} onClose={handleCloseDialog}>
+{ (role === "distributor" || role === "retailer")&&
+
+<Dialog open={openOrderDialog} onClose={handleCloseDialog}>
   
   {selectedItem && (
     <>
