@@ -24,6 +24,9 @@ export function SignIn() {
       const data = await axios.post("http://localhost:3000/common/auth/login", { emailID: email, password: password });
       if (data.data.status == true) {
         navigate("/dashboard/home",{state:{role:data.data.role}});
+        localStorage.setItem("role",data.data.role);
+        localStorage.setItem("id",data.data.id);
+        // console.log(localStorage.getItem("id"));
         console.log(data);
       } else {
         console.log("error");
