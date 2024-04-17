@@ -41,7 +41,9 @@ export function SignUp() {
       });
 
       if (data.data.status == true) {
-        navigate("/dashborad/home");
+        navigate("/dashboard/home");
+        localStorage.setItem("role",data.data.role);
+        localStorage.setItem("id",data.data.id);
         console.log(data);
       } else {
         console.log("error");
