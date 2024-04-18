@@ -126,6 +126,11 @@ export function SignIn() {
             Not registered?
             <Link to="/auth/sign-up" className="text-gray-900 ml-1">Create account</Link>
           </Typography>
+
+          <Typography variant="paragraph" className="text-center text-blue-gray-500 font-medium mt-4">
+            Are You A Customer?
+            <Link to="/auth/CustomerPage" className="text-gray-900 ml-1">Customer</Link>
+          </Typography>
         </form>
 
       </div>
