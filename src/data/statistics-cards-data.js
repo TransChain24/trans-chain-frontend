@@ -4,8 +4,11 @@ import {
   UsersIcon,
   ChartBarIcon,
 } from "@heroicons/react/24/solid";
+import { useLocation } from "react-router-dom";
 
-export const statisticsCardsData = [
+// const role = 'distributor';
+
+const manufacturerCardsData = [
   {
     color: "gray",
     icon: BanknotesIcon,
@@ -19,6 +22,20 @@ export const statisticsCardsData = [
   },
   {
     color: "gray",
+    icon: BanknotesIcon,
+    //title: "jklj fhfhff kjfkjf fjhasjf  jlkj",
+    value: "Show Items",
+    // footer: {
+    //   color: "text-green-500",
+    //   // value: "3.7%",
+    //   // label: "Add what you sell",
+    // },
+  }
+];
+
+const distributorRetailerCardsData = [
+  {
+    color: "gray",
     icon: UsersIcon,
     //title: "Today's Users",
     value: "Display Users",
@@ -27,7 +44,9 @@ export const statisticsCardsData = [
     //   value: "+3%",
     //   label: "than last month",
     // },
-  },
+  }
+];
+
     // {
     //   color: "gray",
     //   icon: UserPlusIcon,
@@ -50,6 +69,7 @@ export const statisticsCardsData = [
   //     label: "than yesterday",
   //   },
   // },
-];
 
-export default statisticsCardsData;
+// export statisticsCardsData;
+
+export  {manufacturerCardsData,distributorRetailerCardsData};
