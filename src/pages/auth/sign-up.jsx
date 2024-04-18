@@ -22,39 +22,77 @@ import {
 export function SignUp() {
   const navigate = useNavigate();
 
-  const [userName, setUserName] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
-  const [oName, setOName] = useState();
-  const [GSTIN, setGSTIN] = useState();
-  const [role, setRole] = useState();
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [oName, setOName] = useState("");
+  const [GSTIN, setGSTIN] = useState("");
+  const [role, setRole] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const errors = {};
+    if (!userName.trim()) {
+      errors.userName = "Username is required";
+    }
+    if (!email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = "Email is invalid";
+    }
+    if (!password.trim()) {
+      errors.password = "Password is required";
+    }
+    if (!oName.trim()) {
+      errors.oName = "Organization name is required";
+    }
+    if (!GSTIN.trim()) {
+      errors.GSTIN = "GSTIN is required";
+    } else if (!/^\d{2}[A-Z]{5}\d{4}[A-Z]\d{1}[A-Z]\d{1}$/.test(GSTIN)) {
+      errors.GSTIN = "GSTIN is invalid";
+    }
+    if (!role) {
+      errors.role = "Role is required";
+    }
+    if (!agreeTerms) {
+      errors.agreeTerms = "Please agree to the terms and conditions";
+    }
+    return errors;
+  };
+  
 
   const register = async () => {
-    try {
-      const data = await axios.post("http://localhost:3000/common/auth/register", {
-        userName: userName,
-        emailID: email,
-        password: password,
-        organizationName: oName,
-        GSTIN: GSTIN,
-        role: role
-      });
+    const errors = validateForm();
+    if (Object.keys(errors).length === 0) {
+      try {
+        const data = await axios.post("http://localhost:3000/common/auth/register", {
+          userName,
+          emailID: email,
+          password,
+          organizationName: oName,
+          GSTIN,
+          role
+        });
 
-      if (data.data.status == true) {
+        if (data.data.status === true) {
+          navigate("/auth/sign-in");
+          localStorage.setItem("role", data.data.role);
+          localStorage.setItem("id", data.data.id);
+          console.log(data);
+        } else {
+          alert("Invalid Email or Password!!");
+          console.log("error");
+        }
 
-        navigate("/dashboard/home");
-        localStorage.setItem("role",data.data.role);
-        localStorage.setItem("id",data.data.id);
         console.log(data);
-      } else {
-        console.log("error");
+      } catch (error) {
+        console.log(error);
       }
-
-      console.log(data);
-    } catch (error) {
-      console.log(error);
+      setUserName("");
+    } else {
+      setErrors(errors);
     }
-    setUserName('');
   }
 
   return (
@@ -66,53 +104,58 @@ export function SignUp() {
         <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2">
           <div className="mb-1 flex flex-col gap-3">
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
-              Username*
+              Username
             </Typography>
             <Input
               size="lg"
               onChange={(e) => setUserName(e.target.value)}
-              placeholder="username"
+              placeholder="Username"
               className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
             />
+            {errors.userName && <Typography variant="small" color="red">{errors.userName}</Typography>}
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Email*
             </Typography>
             <Input
               size="lg"
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@mail.com"
+              placeholder="name@gmail.com"
               className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
             />
+            {errors.email && <Typography variant="small" color="red">{errors.email}</Typography>}
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Password*
             </Typography>
             <Input
+            type="password"
               size="lg"
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="*"
+              placeholder="********"
               className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
             />
+            {errors.password && <Typography variant="small" color="red">{errors.password}</Typography>}
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Organization name*
             </Typography>
             <Input
               size="lg"
               onChange={(e) => setOName(e.target.value)}
-              placeholder="organization name"
+              placeholder="Organization Name"
               className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
             />
+            {errors.oName && <Typography variant="small" color="red">{errors.oName}</Typography>}
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               GSTIN*
             </Typography>
@@ -125,28 +168,29 @@ export function SignUp() {
                 className: "before:content-none after:content-none",
               }}
             />
+            {errors.GSTIN && <Typography variant="small" color="red">{errors.GSTIN}</Typography>}
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
-              Role*
+              Role
             </Typography>
-            <Tabs value="app">
+            <Tabs value={role}>
               <TabsHeader>
-                <Tab value="manufacturer" onClick={() => setRole("manufacturer")}>
-                  {/* <HomeIcon className="-mt-1 mr-2 inline-block h-5 w-5" /> */}
+                {/* <Tab value="manufacturer" onClick={() => setRole("manufacturer")}>
                   manufacturer
-                </Tab>
+                </Tab> */}
                 <Tab value="distributor" onClick={() => setRole("distributor")}>
-                  {/* <ChatBubbleLeftEllipsisIcon className="-mt-0.5 mr-2 inline-block h-5 w-5" /> */}
                   distributor
                 </Tab>
-                <Tab value="retailer" onClick={() => { setRole("retailer") }}>
-                  {/* <Cog6ToothIcon className="-mt-1 mr-2 inline-block h-5 w-5" /> */}
+                <Tab value="retailer" onClick={() => setRole("retailer")}>
                   retailer
                 </Tab>
               </TabsHeader>
             </Tabs>
+            {errors.role && <Typography variant="small" color="red">{errors.role}</Typography>}
           </div>
 
           <Checkbox
+            checked={agreeTerms}
+            onChange={(e) => setAgreeTerms(e.target.checked)}
             label={
               <Typography
                 variant="small"
@@ -164,6 +208,7 @@ export function SignUp() {
             }
             containerProps={{ className: "-ml-2.5" }}
           />
+          {errors.agreeTerms && <Typography variant="small" color="red">{errors.agreeTerms}</Typography>}
           <Button onClick={register} className="mt-6" fullWidth>
             Register Now
           </Button>
