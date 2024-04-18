@@ -149,6 +149,7 @@ export function Home() {
         const result = await fetchData(role);
         console.log(result);
         setData(result.data);
+        localStorage.setItem("manuId", result.data[0]._id);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -229,6 +230,15 @@ export function Home() {
   };
 
   const handleOrderDialog = (item) => {
+    console.log(product)
+    setProductID(item.productID);
+    const id = localStorage.getItem("id");
+    const manuid = localStorage.getItem("manuId");
+    setSenderID(id);
+    setReceiverID(manuid);
+    setSendTo("distributor");
+
+
     setOpenOrderDialog(true);
     setSelectedItem(item);
     // setRequestProduct({
