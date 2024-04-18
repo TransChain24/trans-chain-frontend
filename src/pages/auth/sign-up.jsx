@@ -44,8 +44,7 @@ export function SignUp() {
 
         navigate("/dashboard/home");
         localStorage.setItem("role",data.data.role);
-        localStorage.setItem("id",data.data._id);
-
+        localStorage.setItem("id",data.data.id);
         console.log(data);
       } else {
         console.log("error");
