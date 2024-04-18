@@ -19,6 +19,17 @@ const manufacturerCardsData = [
     //   // value: "3.7%",
     //   // label: "Add what you sell",
     // },
+  },
+  {
+    color: "gray",
+    icon: BanknotesIcon,
+    //title: "jklj fhfhff kjfkjf fjhasjf  jlkj",
+    value: "Show Items",
+    // footer: {
+    //   color: "text-green-500",
+    //   // value: "3.7%",
+    //   // label: "Add what you sell",
+    // },
   }
 ];
 

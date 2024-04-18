@@ -37,22 +37,33 @@ export function Home() {
   const [visible, setVisible] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [openOrderDialog, setOpenOrderDialog] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [expandedOrganization, setExpandedOrganization] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [activeCard, setActiveCard] = useState(null);
+  const [quantity, setQuantity] = useState();
   const [data, setData] = useState([]);
   const [product, setProduct] = useState([]);
   const [distributors, setDistributorList] = useState([]);
   const [productsData, setDistributorProduct] = useState([]); // inventory products data
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [expandedOrganization, setExpandedOrganization] = useState(null);
+  const [requestProduct,setRequestProduct] = useState({
+    productID:"",
+    senderID:"",
+    receiverID:"",
+    quantity: 0,
+    sendTo:"",
+  });
 
   const location = useLocation();
-  const { role } = location.state;
+  // const { role } = location.state;
+  const role = localStorage.getItem("role");
+  const id = localStorage.getItem("id");
 
   const API_URL_DISPLAY = "http://localhost:3000/common/display/"; // Replace with your backend server's API URL
   const API_URL_PRODUCT = "http://localhost:3000/common/product/"; // Replace with your backend server's API URL
-  
+  const API_URL_REQUEST = "http://localhost:3000/common/request/";
+
   const fetchData = async (userRole) => {
     try {
       const response = await axios.get(`${API_URL_DISPLAY}/display?role=${userRole}`);
@@ -92,23 +103,33 @@ export function Home() {
       throw error; // Rethrow the error to handle it in the component
     }
   }
+   const handleOrder = async () => {
+    try {
+      console.log(requestProduct);
+      // console.log(quantity)
+      if (!quantity || isNaN(quantity) || parseInt(quantity) <= 0) {
+        alert('Please enter a valid quantity.');
+        return;
+      }
+      setRequestProduct({...requestProduct, quantity: parseInt(quantity)});
+      const response = await axios.post(`${API_URL_REQUEST}request`, requestProduct);
+      
+      if (response.data && response.data.status === true) {
 
-  const distributorsProducts = async (ownerId) => {
-    try{
-      const result = await getDistributorProducts(ownerId);
-      console.log(result);
-      setDistributorProduct(result.products);
-      setLoading(false);
-    }catch(error){
-      console.error('Eror fetching products of distributors:', error);
-      setError(error.message || 'Error fetching products of distributor');
+        alert('Order placed successfully!');
+        setQuantity('');
+      } else {
+        alert('Failed to place the order. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Error placing the order:', error);
+      alert('An error occurred while placing the order. Please try again later.');
     }
   };
 
   useEffect(() => {
     const fetchDataFromAPI = async () => {
       try {
-       
         // const role = "distributor";
         const result = await fetchData(role);
         console.log(result);
@@ -149,8 +170,6 @@ export function Home() {
     inventoryDistributors();
   }, []);
 
-  
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -158,38 +177,6 @@ export function Home() {
   if (error) {
     return <div>Error: {error}</div>;
   }
-
-  // const role = "retailer"; // Or "distributor"
-  // fetchData(role)
-  //   .then(data => {
-  //     console.log("Fetched data:", data);
-  //     // Do something with the fetched data
-  //   })
-  //   .catch(error => {
-  //     console.error("Error fetching data:", error);
-  //     // Handle error
-  //   });
-  
-  // const productsData = [
-  //   {
-  //     ownerId: 1,
-  //     products: [
-  //       { productId: 1, productName: "Product 1", description: "Description for Product 1" },
-  //       { productId: 2, productName: "Product 2", description: "Description for Product 2" },
-  //       // Add more products for owner ID 1 if needed
-  //     ]
-  //   },
-  //   {
-  //     ownerId: 2,
-  //     products: [
-  //       { productId: 3, productName: "Product 3", description: "Description for Product 3" },
-  //       { productId: 4, productName: "Product 4", description: "Description for Product 4" },
-  //       // Add more products for owner ID 2 if needed
-  //     ]
-  //   },
-  //   // Add more owner IDs and associated products as needed
-  // ];
-
   
   const handleOpenDialog = (item) => {
     setSelectedItem(item); // Set the selected item
@@ -197,16 +184,36 @@ export function Home() {
     setOpenDialog(true); // Open the dialog
   };
 
-  const handleOpenDialogForRetailer = (item,ownerId) => {
+  const handleOpenDialogForRetailer = async (item,ownerId) => {
     setSelectedItem(item); // Set the selected item
     setExpandedOrganization(item); 
     setOpenDialog(true); // Open the dialog
-    distributorsProducts(ownerId); // it will call the api for getting products of ownerID has in
+
+    try{ // it will call the api for getting products of ownerID has in
+      const result = await getDistributorProducts(ownerId);
+      console.log(result);
+      setDistributorProduct(result.products);
+      setLoading(false);
+    }catch(error){
+      console.error('Eror fetching products of distributors:', error);
+      setError(error.message || 'Error fetching products of distributor');
+    }
+
+    setRequestProduct({ ...requestProduct,
+      receiverID : ownerId,
+      sendTo : item.role,
+      senderID : id
+    })
+
+    
   };
 
   const handleOrderDialog = (item) => {
     setOpenOrderDialog(true);
     setSelectedItem(item);
+    setRequestProduct({ ...requestProduct,
+      productID : item.productID
+    })
   };
 
   const handleCloseDialog = () => {
@@ -289,7 +296,46 @@ export function Home() {
 		</div>
 	</div>
 </div>
-        </div>}
+        </div>
+      }
+      {activeCard === "Show Items" && <div className="">
+          <div class="-mt-4 flex flex-col">
+	<div class="relative  sm:max-w-xl my-4">
+		
+		<div class="relative px-4 py-2 bg-white shadow-lg sm:rounded-3xl sm:p-8">
+			<div class="max-w-md mx-auto">
+				<div>
+					<h1 class="text-2xl font-semibold -m-3">Add New Product</h1>
+				</div>
+				<div class="divide-y divide-gray-200">
+					<div class="py-6 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-5">
+						<div class="relative my-3">
+							<input autocomplete="off" id="product_name" name="product_name" type="text" class="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600 my-3" placeholder="Product Name" required/>
+							<label for="product_name" class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Product Name</label>
+						</div>
+						<div class="relative">
+							<input autocomplete="off" id="product_description" name="product_description" type="text" class="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600 my-3" placeholder="Product Description" required/>
+							<label for="product_description" class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Product Description</label>
+						</div>
+            <div class="relative">
+							<input autocomplete="off" id="product_price" name="product_price" type="text" class="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600 my-3" placeholder="Product Price" required/>
+							<label for="product_price" class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Product Price</label>
+						</div>
+						<div class="relative">
+							{/* <button class="bg-blue-500 text-white rounded-md px-2 py-1">Submit</button>     */}
+              {/* <button class="bg-black text-white font-bold py-2 px-4 rounded focus:outline-none shadow-md">SIGN IN</button> */}
+              <Button variant="gradient" fullWidth className="-my-1">
+                ADD PRODUCT
+              </Button>
+            </div>            
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+        </div>
+      }
       {activeCard === "Display Users" && role === "distributor" && (
         <div>
         
@@ -447,19 +493,19 @@ export function Home() {
             marginTop: "10px",
             marginBottom: "10px",
             width: "100%", 
-          
           }}
-          // Add any necessary props and event handlers here
+          onChange={(e) => setQuantity(e.target.value)}
+          // Value should be controlled by state
+          value={quantity}
         />
       </DialogContent>
       <DialogActions>
-      <Button onClick={handleCloseDialog} color="primary" className=   " mr-auto bg-gray-900 hover:bg-gray-700 text-white font-bold rounded">
+      <Button onClick={handleCloseDialog} color="primary" className=" mr-auto bg-gray-900 hover:bg-gray-700 text-white font-bold rounded">
           Close
         </Button>
-      <Button color="primary" className=" bg-gray-900 hover:bg-gray-700 text-white font-bold rounded">
+      <Button onClick={handleOrder} color="primary" className=" bg-gray-900 hover:bg-gray-700 text-white font-bold rounded">
           Order
         </Button>
-        
       </DialogActions>
     </>
   )}
