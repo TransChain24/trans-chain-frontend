@@ -6,83 +6,47 @@ import {
   CardHeader,
   CardBody,
 } from "@material-tailwind/react";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { manufacturerdistributorCardsData, RetailerCardsData } from "@/data";
+import { StatisticsCard } from "@/widgets/cards";
 
+
+const role = localStorage.getItem("role");
+const id = localStorage.getItem("id");
+// console.log(role);
 export function Notifications() {
-  const [showAlerts, setShowAlerts] = React.useState({
-    blue: true,
-    green: true,
-    orange: true,
-    red: true,
-  });
-  const [showAlertsWithIcon, setShowAlertsWithIcon] = React.useState({
-    blue: true,
-    green: true,
-    orange: true,
-    red: true,
-  });
-  const alerts = ["gray", "green", "orange", "red"];
-
   return (
-    <div className="mx-auto my-20 flex max-w-screen-lg flex-col gap-8">
-      <Card>
-        <CardHeader
-          color="transparent"
-          floated={false}
-          shadow={false}
-          className="m-0 p-4"
-        >
-          <Typography variant="h5" color="blue-gray">
-            Alerts
-          </Typography>
-        </CardHeader>
-        <CardBody className="flex flex-col gap-4 p-4">
-          {alerts.map((color) => (
-            <Alert
-              key={color}
-              open={showAlerts[color]}
-              color={color}
-              onClose={() => setShowAlerts((current) => ({ ...current, [color]: false }))}
-            >
-              A simple {color} alert with an <a href="#">example link</a>. Give
-              it a click if you like.
-            </Alert>
-          ))}
-        </CardBody>
-      </Card>
-      <Card>
-        <CardHeader
-          color="transparent"
-          floated={false}
-          shadow={false}
-          className="m-0 p-4"
-        >
-          <Typography variant="h5" color="blue-gray">
-            Alerts with Icon
-          </Typography>
-        </CardHeader>
-        <CardBody className="flex flex-col gap-4 p-4">
-          {alerts.map((color) => (
-            <Alert
-              key={color}
-              open={showAlertsWithIcon[color]}
-              color={color}
-              icon={
-                <InformationCircleIcon strokeWidth={2} className="h-6 w-6" />
-              }
-              onClose={() => setShowAlertsWithIcon((current) => ({
-                ...current,
-                [color]: false,
-              }))}
-            >
-              A simple {color} alert with an <a href="#">example link</a>. Give
-              it a click if you like.
-            </Alert>
-          ))}
-        </CardBody>
-      </Card>
+    <div className="mt-10 ">
+      <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4 ">
+        {role === "manufacturer" || role === "distributor" ? (
+          manufacturerdistributorCardsData.map(({ icon, value, ...rest }) => (
+            <StatisticsCard
+              key={value}
+              // val = {value}
+              onClick={() => toggleDisplay(value)}
+              {...rest}
+              value={value}
+              icon={React.createElement(icon, {
+                className: "w-6 h-6 text-white",
+              })}
+            />
+          ))
+        ) : (
+          RetailerCardsData.map(({ icon, value, ...rest }) => (
+            <StatisticsCard
+              key={value}
+              // val = {value}
+              onClick={() => toggleDisplay(value)}
+              {...rest}
+              value={value}
+              icon={React.createElement(icon, {
+                className: "w-6 h-6 text-white",
+              })}
+            />
+          ))
+        )}
+      </div>
     </div>
-  );
+  )
 }
 
 export default Notifications;
