@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Typography, Input, Button } from '@material-tailwind/react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-function CustomerPage() {
+export function CustomerPage() {
   const [serialNumber, setSerialNumber] = useState('');
   const [result, setResult] = useState([]);
   const [error, setError] = useState('');
@@ -14,13 +15,7 @@ function CustomerPage() {
       //   return;
       // }
 
-      const response = await fetch('http://localhost:3000/common/checkSerialNumber/checkSerialNumber', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ serialNumber }),
-      });
+      const response = await axios.post('http://localhost:3000/common/checkSerialNumber/checkSerialNumber', { serialNumber:serialNumber});
       const data = await response.json();
       if (data.status) {
         setResult(data.data);
