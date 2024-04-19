@@ -61,31 +61,33 @@ export function SignUp() {
     return errors;
   };
   
-
   const register = async () => {
     const errors = validateForm();
     if (Object.keys(errors).length === 0) {
       try {
-        const data = await axios.post("http://localhost:3000/common/auth/register", {
-          userName,
-          emailID: email,
-          password,
-          organizationName: oName,
-          GSTIN,
-          role
-        });
-
-        if (data.data.status === true) {
-          navigate("/auth/sign-in");
-          localStorage.setItem("role", data.data.role);
-          localStorage.setItem("id", data.data.id);
-          console.log(data);
-        } else {
-          alert("Invalid Email or Password!!");
-          console.log("error");
-        }
-
+        const data = { userName: userName, email: email, password:password, oName:oName, GSTIN:GSTIN, role:role };
         console.log(data);
+        navigate("/auth/Otp",{ state: {data:data} });
+        // const data = await axios.post("http://localhost:3000/common/auth/register", {
+        //   userName,
+        //   emailID: email,
+        //   password,
+        //   organizationName: oName,
+        //   GSTIN,
+        //   role
+        // });
+
+        // if (data.data.status === true) {
+        //   navigate("/auth/sign-in");
+        //   localStorage.setItem("role", data.data.role);
+        //   localStorage.setItem("id", data.data.id);
+        //   console.log(data);
+        // } else {
+        //   alert("Invalid Email or Password!!");
+        //   console.log("error");
+        // }
+
+        // console.log(data);
       } catch (error) {
         console.log(error);
       }

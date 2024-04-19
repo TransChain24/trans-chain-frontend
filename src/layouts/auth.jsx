@@ -30,6 +30,11 @@ export function Auth() {
       path: "/auth/sign-in",
       icon: ArrowRightOnRectangleIcon,
     },
+    {
+      name: "otp",
+      path: "/auth/Otp",
+      icon: ArrowRightOnRectangleIcon,
+    },
   ];
 
   return (

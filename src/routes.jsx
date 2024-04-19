@@ -7,7 +7,7 @@ import {
   RectangleStackIcon,
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
-import { SignIn, SignUp, CustomerPage } from "@/pages/auth";
+import { SignIn, SignUp, CustomerPage, Otp } from "@/pages/auth";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -29,12 +29,12 @@ export const routes = [
         path: "/profile",
         element: <Profile />,
       },
-      {
-        icon: <TableCellsIcon {...icon} />,
-        name: "tables",
-        path: "/tables",
-        element: <Tables />,
-      },
+      // {
+      //   icon: <TableCellsIcon {...icon} />,
+      //   name: "tables",
+      //   path: "/tables",
+      //   element: <Tables />,
+      // },
       {
         icon: <InformationCircleIcon {...icon} />,
         name: "notifications",
@@ -65,6 +65,13 @@ export const routes = [
         path: "/CustomerPage",
         element: <CustomerPage />,
       },
+      {
+        icon: <RectangleStackIcon {...icon} />,
+        name: "Otp",
+        path: "/Otp",
+        element: <Otp/>,
+      },
+
     ],
   },
 ];

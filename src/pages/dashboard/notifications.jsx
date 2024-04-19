@@ -5,7 +5,7 @@ import {
   Alert,
   Card,
   CardHeader,
-  CardBody,
+  CardBody, Button
 } from "@material-tailwind/react";
 import { manufacturerdistributorCardsData, RetailerCardsData } from "@/data";
 import { StatisticsCard } from "@/widgets/cards";
@@ -13,7 +13,7 @@ import axios from "axios";
 
 // console.log(role);
 export function Notifications() {
-  
+
   const role = localStorage.getItem("role");
   const userId = localStorage.getItem("id");
   const [activeCard, setActiveCard] = useState(null);
@@ -21,6 +21,37 @@ export function Notifications() {
   const [acceptedRequests, setAcceptedRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const approveRequest = async (item) => {
+    try {
+      const role = localStorage.getItem("role");
+      if (role == "manufacturer") {
+        console.log(item);
+        const id = localStorage.getItem("id");
+        const approve = await axios.post("http://localhost:3000/common/acceptRequest/acceptRequest", {
+          requestID: item._id,
+          productID: item.productID,
+          quantity: item.quantity,
+          manufacturerID: id,
+          distributorID: item.senderID
+        });
+      } else if (role == "distributor") {
+        console.log(item);
+        const id = localStorage.getItem("id");
+        const approve = await axios.post("http://localhost:3000/common/extractSerialNumbers/extractSerialNumbers", {
+          requestID: item._id,
+          productID: item.productID,
+          requestedQuantity: item.quantity,
+          retailerID: item.senderID,
+          distributorID: id
+        });
+      }
+      alert("request approved successfully.");
+    } catch (error) {
+      console.error('Error fetching pending requests:', error);
+      setError(error.message || 'Error fetching pending requests');
+    }
+  }
 
   // Function to fetch pending requests
   const fetchPendingRequests = async () => {
@@ -86,7 +117,7 @@ export function Notifications() {
           ))
         )}
       </div>
-      
+
       {activeCard === "Pending Request" && (
         <div>
 
@@ -100,7 +131,7 @@ export function Notifications() {
                 <th className="py-3 px-6 text-left">GSTIN</th> */}
                 <th className="py-3 px-6 text-left">Quantity</th>
                 <th className="py-3 px-6 text-left">Status</th>
-              
+
               </tr>
             </thead>
             <tbody className="text-gray-600 text-sm font-light">
@@ -113,11 +144,11 @@ export function Notifications() {
                   <td className="py-3 px-6 text-left">{item.quantity}</td>
                   <td className="py-3 px-6 text-left">{item.status}</td>
                   {/* <td className="py-3 px-6 text-left">{item.productId}</td> */}
-                  {/* <td className="py-3 px-6 text-left">
-                    <Button onClick={() => handleOrderDialog(item)} className="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                  <td className="py-3 px-6 text-left">
+                    <Button onClick={() => approveRequest(item)} className="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                       View Details
                     </Button>
-                  </td> */}
+                  </td>
                 </tr>
               ))}
             </tbody>
